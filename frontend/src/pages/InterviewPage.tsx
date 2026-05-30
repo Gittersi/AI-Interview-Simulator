@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 import { interviewService, evaluationService } from '../services/apiClient';
 import { InterviewPanel } from '../components/InterviewPanel';
 import { CodingEditor } from '../components/CodingEditor';
-import { Question } from '../types';
+import { Interview, Question } from '../types';
 import { Clock } from 'lucide-react';
 
 export const InterviewPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [interview, setInterview] = useState<any>(null);
+  const [interview, setInterview] = useState<Interview | null>(null);
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,7 @@ export const InterviewPage: React.FC = () => {
       }
 
       // Move to next question
-      if (questionIndex < (interview?.questions?.length || 0) - 1) {
+      if (interview && questionIndex < interview.questions.length - 1) {
         const nextQuestion = interview.questions[questionIndex + 1];
         setCurrentQuestion(nextQuestion);
         setQuestionIndex(questionIndex + 1);

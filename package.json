@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\"",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:backend": "cd backend && python main.py",
+    "dev:backend": "cd backend && python -m app.main",
     "build": "npm:build:frontend",
     "build:frontend": "cd frontend && npm run build",
     "lint": "concurrently \"npm:lint:frontend\" \"npm:lint:backend\"",

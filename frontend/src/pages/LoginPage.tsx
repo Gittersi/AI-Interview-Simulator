@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store';
 import { authService } from '../services/apiClient';
+import axios from 'axios';
 import { LogIn } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
@@ -31,8 +32,11 @@ export const LoginPage: React.FC = () => {
         setUser(response.data.user);
         navigate('/dashboard');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Authentication failed');
+    } catch (err: unknown) {
+      const message = axios.isAxiosError<{ detail?: string }>(err)
+        ? err.response?.data?.detail
+        : undefined;
+      setError(message || 'Authentication failed');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 module.exports = {
-  root: process.cwd(),
+  root: true,
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',

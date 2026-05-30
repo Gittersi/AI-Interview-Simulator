@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { User } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
@@ -8,6 +9,15 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+interface SubmitAnswerPayload {
+  text: string;
+  questionId?: string;
+  audioUrl?: string;
+  code?: string;
+}
+
+type UserProfileUpdate = Partial<Pick<User, 'name' | 'email' | 'skills'>>;
 
 // Add token to requests
 apiClient.interceptors.request.use((config) => {
@@ -32,7 +42,7 @@ export const interviewService = {
   startFromResume: (resumeText: string, difficulty: string) =>
     apiClient.post('/interviews/from-resume', { resumeText, difficulty }),
   getInterview: (id: string) => apiClient.get(`/interviews/${id}`),
-  submitAnswer: (interviewId: string, answer: any) =>
+  submitAnswer: (interviewId: string, answer: SubmitAnswerPayload) =>
     apiClient.post(`/interviews/${interviewId}/submit`, answer),
   completeInterview: (id: string) =>
     apiClient.post(`/interviews/${id}/complete`, {}),
@@ -57,7 +67,7 @@ export const evaluationService = {
 
 export const userService = {
   getProfile: () => apiClient.get('/users/profile'),
-  updateProfile: (data: any) => apiClient.put('/users/profile', data),
+  updateProfile: (data: UserProfileUpdate) => apiClient.put('/users/profile', data),
   parseResumeText: (resumeText: string) =>
     apiClient.post('/users/resume/text', { resumeText }),
   uploadResume: (file: File) => {

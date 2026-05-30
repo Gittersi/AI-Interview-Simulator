@@ -10,9 +10,23 @@ interface ParsedResume {
   education: string[];
 }
 
+interface InterviewSummary {
+  id: string;
+  startTime: string;
+  category: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  status: 'in-progress' | 'completed' | 'abandoned';
+}
+
+interface UserProgress {
+  totalInterviews: number;
+  completedInterviews: number;
+  averageScore: number;
+}
+
 export const Dashboard: React.FC = () => {
-  const [interviews, setInterviews] = useState<any[]>([]);
-  const [progress, setProgress] = useState<any>(null);
+  const [interviews, setInterviews] = useState<InterviewSummary[]>([]);
+  const [progress, setProgress] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [resumeText, setResumeText] = useState('');
   const [resumeDifficulty, setResumeDifficulty] = useState('medium');
