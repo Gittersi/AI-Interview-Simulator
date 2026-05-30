@@ -51,19 +51,18 @@ export const InterviewPage: React.FC = () => {
     try {
       if (!id) return;
 
-      // Submit answer
-      await interviewService.submitAnswer(id, {
+      // Submit answer and use server-side evaluation if available
+      const submitResp = await interviewService.submitAnswer(id, {
         text: answer,
         questionId: currentQuestion?.id,
       });
 
-      // Evaluate answer
       let evaluation;
-      if (currentQuestion) {
-        const response = await evaluationService.evaluateAnswer(
-          answer,
-          currentQuestion.text
-        );
+      if (submitResp && submitResp.data && submitResp.data.evaluation) {
+        evaluation = submitResp.data.evaluation;
+      } else if (currentQuestion) {
+        // Fallback: call client-side evaluation
+        const response = await evaluationService.evaluateAnswer(answer, currentQuestion.text);
         evaluation = response.data;
       }
 

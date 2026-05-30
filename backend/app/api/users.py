@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from app.schemas import ResumeTextCreate, UserResponse
+from app.schemas import ResumeTextCreate, ResumeUpdateCreate, UserResponse
 from app.services.auth_service import AuthService
 from app.services.resume_parser_service import ResumeParserService
 from app.db.database import get_db
@@ -127,7 +127,7 @@ async def parse_resume_text(
         logger.error(f"Resume text parse error: {e}")
         raise HTTPException(status_code=400, detail="Failed to parse resume")
 
-@router.get("/progress")
+@router.post("/progress")
 async def get_progress(
     user_id: str = Depends(get_current_user),
     db=Depends(get_db)
@@ -152,3 +152,91 @@ async def get_progress(
         "averageScore": avg_score,
         "improvementTrend": "positive"  # Placeholder
     }
+
+
+@router.post("/resume/analyze-ats")
+async def analyze_resume_ats(
+    data: dict,
+    user_id: str = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    """Analyze resume for ATS (Applicant Tracking System) score."""
+    try:
+        resume_text = data.get("resumeText")
+        job_description = data.get("jobDescription")
+        
+        if not resume_text:
+            raise HTTPException(status_code=400, detail="Resume text is required")
+        
+        if len(resume_text.strip()) < 100:
+            raise HTTPException(status_code=400, detail="Resume text is too short (minimum 100 characters)")
+        
+        logger.info(f"Analyzing resume for user {user_id}")
+        
+        # Calculate ATS score using LLM
+        ats_analysis = ResumeParserService.calculate_ats_score(resume_text, job_description)
+        
+        # Store analysis in database
+        await db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {
+                "$set": {
+                    "resume": resume_text,
+                    "atsScore": ats_analysis.get("ats_score"),
+                    "atsAnalysis": ats_analysis,
+                    "lastAtsAnalysis": __import__('datetime').datetime.utcnow()
+                }
+            }
+        )
+        
+        logger.info(f"ATS analysis complete: score={ats_analysis.get('ats_score')}")
+        
+        return {
+            "status": "success",
+            "analysis": ats_analysis
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"ATS analysis error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to analyze resume")
+
+@router.post("/resume/update")
+async def update_resume_for_job(
+    data: ResumeUpdateCreate,
+    user_id: str = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    """Generate an updated resume tailored to the provided job description."""
+    try:
+        if not data.resumeText.strip():
+            raise HTTPException(status_code=400, detail="Resume text is required")
+        if not data.jobDescription.strip():
+            raise HTTPException(status_code=400, detail="Job description is required")
+
+        logger.info(f"Updating resume for user {user_id}")
+        updated = ResumeParserService.rewrite_resume_for_job(data.resumeText, data.jobDescription)
+
+        await db.users.update_one(
+            {"_id": ObjectId(user_id)},
+            {
+                "$set": {
+                    "resume": updated.get("updated_resume", data.resumeText),
+                    "resumeData": ResumeParserService.parse_resume(updated.get("updated_resume", data.resumeText)),
+                    "resumeUpdate": updated,
+                    "lastResumeUpdate": __import__('datetime').datetime.utcnow()
+                }
+            }
+        )
+
+        return {
+            "status": "success",
+            "updatedResume": updated.get("updated_resume", data.resumeText),
+            "analysis": updated
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Resume update error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update resume")

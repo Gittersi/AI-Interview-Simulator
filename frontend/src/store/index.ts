@@ -16,6 +16,12 @@ interface InterviewStore {
   setCurrentQuestion: (question: Question | null) => void;
 }
 
+interface ThemeStore {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  setDarkMode: (isDark: boolean) => void;
+}
+
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   token: localStorage.getItem('authToken'),
@@ -40,3 +46,38 @@ export const useInterviewStore = create<InterviewStore>((set) => ({
   setCurrentInterview: (interview) => set({ currentInterview: interview }),
   setCurrentQuestion: (question) => set({ currentQuestion: question }),
 }));
+
+export const useThemeStore = create<ThemeStore>((set) => {
+  const saved = localStorage.getItem('theme') || 'light';
+  const isDark = saved === 'dark';
+  if (isDark) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+
+  return {
+    isDarkMode: isDark,
+    toggleDarkMode: () => {
+      set((state) => {
+        const newIsDark = !state.isDarkMode;
+        localStorage.setItem('theme', newIsDark ? 'dark' : 'light');
+        if (newIsDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        return { isDarkMode: newIsDark };
+      });
+    },
+    setDarkMode: (isDark: boolean) => {
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      set({ isDarkMode: isDark });
+    },
+  };
+});

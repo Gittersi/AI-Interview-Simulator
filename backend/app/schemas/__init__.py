@@ -67,6 +67,9 @@ class InterviewCreate(BaseModel):
 class ResumeTextCreate(BaseModel):
     resumeText: str = Field(..., min_length=20)
 
+class ResumeUpdateCreate(ResumeTextCreate):
+    jobDescription: str = Field(..., min_length=20)
+
 class ResumeInterviewCreate(ResumeTextCreate):
     difficulty: DifficultyEnum = DifficultyEnum.MEDIUM
 

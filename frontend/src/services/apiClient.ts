@@ -70,6 +70,10 @@ export const userService = {
   updateProfile: (data: UserProfileUpdate) => apiClient.put('/users/profile', data),
   parseResumeText: (resumeText: string) =>
     apiClient.post('/users/resume/text', { resumeText }),
+  analyzeResumeATS: (resumeText: string, jobDescription?: string) =>
+    apiClient.post('/users/resume/analyze-ats', { resumeText, jobDescription }),
+  updateResume: (resumeText: string, jobDescription: string) =>
+    apiClient.post('/users/resume/update', { resumeText, jobDescription }),
   uploadResume: (file: File) => {
     const formData = new FormData();
     formData.append('file', file);

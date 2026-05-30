@@ -3,6 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.schemas import InterviewCreate, InterviewResponse, AnswerCreate, ResumeInterviewCreate
 from app.services.auth_service import AuthService
 from app.services.llm_service import LLMService
+from app.services.evaluation_service import EvaluationService
 from app.services.resume_parser_service import ResumeParserService
 from app.db.database import get_db
 from bson import ObjectId
@@ -151,22 +152,46 @@ async def submit_answer(
     if interview["userId"] != user_id:
         raise HTTPException(status_code=403, detail="Unauthorized")
     
-    # Store answer
+    # Determine question text for evaluation
+    question_text = None
+    try:
+        for q in interview.get("questions", []):
+            if q.get("id") == answer_data.questionId:
+                question_text = q.get("text")
+                break
+    except Exception:
+        question_text = None
+
+    if question_text is None:
+        # Fallback: try by index
+        try:
+            q_index = len(interview.get("answers", []))
+            question_text = interview.get("questions", [])[q_index].get("text")
+        except Exception:
+            question_text = ""
+
+    # Evaluate answer server-side and include LLM feedback
+    evaluation = EvaluationService.evaluate_answer(answer_data.text, question_text)
+    feedback = LLMService.generate_feedback(answer_data.text, question_text)
+    evaluation["llm_feedback"] = feedback
+
+    # Store answer with evaluation
     answer = {
         "questionId": answer_data.questionId,
         "questionIndex": len(interview.get("answers", [])),
         "text": answer_data.text,
         "audioUrl": answer_data.audioUrl,
         "code": answer_data.code,
+        "evaluation": evaluation,
         "timestamp": datetime.utcnow()
     }
-    
+
     await db.interviews.update_one(
         {"_id": interview_id},
         {"$push": {"answers": answer}}
     )
-    
-    return {"status": "success", "answerId": str(uuid.uuid4())}
+
+    return {"status": "success", "answerId": str(uuid.uuid4()), "evaluation": evaluation}
 
 @router.post("/{interview_id}/complete")
 async def complete_interview(
