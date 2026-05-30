@@ -1,0 +1,32 @@
+{
+  "name": "ai-interview-simulator",
+  "version": "1.0.0",
+  "description": "AI-powered mock technical interview platform with voice interaction and real-time evaluation",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm:dev:frontend\" \"npm:dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && python main.py",
+    "build": "npm:build:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "lint": "concurrently \"npm:lint:frontend\" \"npm:lint:backend\"",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && flake8 app/",
+    "test": "npm:test:frontend",
+    "test:frontend": "cd frontend && npm run test"
+  },
+  "keywords": [
+    "ai",
+    "interview",
+    "mock-interview",
+    "voice",
+    "technical-interview",
+    "evaluation",
+    "nlp"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
