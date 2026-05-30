@@ -58,11 +58,13 @@ export const InterviewPage: React.FC = () => {
       });
 
       // Evaluate answer
+      let evaluation;
       if (currentQuestion) {
-        await evaluationService.evaluateAnswer(
+        const response = await evaluationService.evaluateAnswer(
           answer,
           currentQuestion.text
         );
+        evaluation = response.data;
       }
 
       // Move to next question
@@ -78,6 +80,8 @@ export const InterviewPage: React.FC = () => {
         }
         alert('Interview completed! Generating report...');
       }
+
+      return evaluation;
     } catch (error) {
       console.error('Failed to submit answer:', error);
       alert('Failed to submit answer. Please try again.');

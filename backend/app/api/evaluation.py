@@ -39,7 +39,7 @@ async def evaluate_answer(
     evaluation = EvaluationService.evaluate_answer(answer_text, question_text)
     
     # Get LLM feedback
-    feedback = await LLMService.generate_feedback(answer_text, question_text)
+    feedback = LLMService.generate_feedback(answer_text, question_text)
     evaluation["llm_feedback"] = feedback
     
     return evaluation

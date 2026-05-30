@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.db.database import connect_to_mongo, disconnect_from_mongo
-from app.api import auth, interviews, evaluation, users
+from app.api import auth, interviews, evaluation, users, speech
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +39,7 @@ app.include_router(auth.router)
 app.include_router(interviews.router)
 app.include_router(evaluation.router)
 app.include_router(users.router)
+app.include_router(speech.router)
 
 @app.get("/health")
 async def health_check():

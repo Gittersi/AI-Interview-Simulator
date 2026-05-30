@@ -48,6 +48,7 @@ class QuestionResponse(BaseModel):
 
 # Interview Schema
 class AnswerCreate(BaseModel):
+    questionId: Optional[str] = None
     text: Optional[str] = None
     audioUrl: Optional[str] = None
     code: Optional[str] = None

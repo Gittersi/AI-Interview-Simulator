@@ -153,6 +153,7 @@ async def submit_answer(
     
     # Store answer
     answer = {
+        "questionId": answer_data.questionId,
         "questionIndex": len(interview.get("answers", [])),
         "text": answer_data.text,
         "audioUrl": answer_data.audioUrl,

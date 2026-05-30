@@ -4,7 +4,12 @@ import { VoiceRecorder } from './VoiceRecorder';
 
 interface InterviewPanelProps {
   question: Question;
-  onSubmitAnswer: (answer: string, audioUrl?: string) => Promise<void>;
+  onSubmitAnswer: (answer: string, audioUrl?: string) => Promise<AnswerFeedback | void>;
+}
+
+interface AnswerFeedback {
+  feedback?: string;
+  llm_feedback?: string;
 }
 
 export const InterviewPanel: React.FC<InterviewPanelProps> = ({
@@ -13,6 +18,7 @@ export const InterviewPanel: React.FC<InterviewPanelProps> = ({
 }) => {
   const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState('');
 
   const handleSubmit = async () => {
     if (!answer.trim()) {
@@ -22,7 +28,8 @@ export const InterviewPanel: React.FC<InterviewPanelProps> = ({
 
     setIsSubmitting(true);
     try {
-      await onSubmitAnswer(answer);
+      const result = await onSubmitAnswer(answer);
+      setFeedback(result?.llm_feedback || result?.feedback || '');
       setAnswer('');
     } catch (error) {
       console.error('Failed to submit answer:', error);
@@ -72,6 +79,13 @@ export const InterviewPanel: React.FC<InterviewPanelProps> = ({
         onTranscription={handleVoiceTranscription}
         disabled={isSubmitting}
       />
+
+      {feedback && (
+        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <h4 className="text-sm font-semibold text-green-800 mb-1">Feedback</h4>
+          <p className="text-sm text-green-700">{feedback}</p>
+        </div>
+      )}
 
       <button
         onClick={handleSubmit}
