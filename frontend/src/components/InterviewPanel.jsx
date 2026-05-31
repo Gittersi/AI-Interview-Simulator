@@ -1,23 +1,9 @@
 import React, { useState } from 'react';
-import { Question } from '../types';
 import { VoiceRecorder } from './VoiceRecorder';
 import { Volume2, VolumeX } from 'lucide-react';
 import { speechService } from '../services/speechService';
 
-interface InterviewPanelProps {
-  question: Question;
-  onSubmitAnswer: (answer: string, audioUrl?: string) => Promise<AnswerFeedback | void>;
-}
-
-interface AnswerFeedback {
-  feedback?: string;
-  llm_feedback?: string;
-  correctness?: number;
-  confidence?: number;
-  communication?: number;
-}
-
-export const InterviewPanel: React.FC<InterviewPanelProps> = ({
+export const InterviewPanel = ({
   question,
   onSubmitAnswer,
 }) => {
@@ -25,11 +11,7 @@ export const InterviewPanel: React.FC<InterviewPanelProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [scores, setScores] = useState<{
-    correctness?: number;
-    confidence?: number;
-    communication?: number;
-  }>({});
+  const [scores, setScores] = useState({});
 
   const handleSubmit = async () => {
     if (!answer.trim()) {

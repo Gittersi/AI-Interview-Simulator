@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { evaluationService } from '../services/apiClient';
 import { PerformanceReport } from '../components/PerformanceReport';
-import { PerformanceReport as IPerformanceReport } from '../types';
 import { ArrowLeft } from 'lucide-react';
 
-export const ReportPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+export const ReportPage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [report, setReport] = useState<IPerformanceReport | null>(null);
+  const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

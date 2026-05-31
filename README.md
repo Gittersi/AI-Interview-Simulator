@@ -25,7 +25,7 @@ An intelligent AI-powered technical interview platform that conducts mock interv
 ```
 ┌─────────────────────────────────────────────────────────┐
 │                    React Frontend                        │
-│              (Vite + TypeScript + UI)                   │
+│              (Vite + JavaScript + React)                 │
 └────────────────────┬────────────────────────────────────┘
                      │ WebSocket/HTTP
 ┌────────────────────▼────────────────────────────────────┐
@@ -59,6 +59,9 @@ cd majorproject
 ```
 
 2. **Frontend Setup**
+
+Note: The frontend has been converted from TypeScript to JavaScript. All source files are `.js`/`.jsx` and the Vite config is `vite.config.js`.
+
 ```bash
 cd frontend
 npm install
@@ -114,16 +117,16 @@ majorproject/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── InterviewPanel.tsx
-│   │   │   ├── CodingEditor.tsx
-│   │   │   ├── PerformanceReport.tsx
-│   │   │   └── VoiceRecorder.tsx
+│   │   │   ├── InterviewPanel.jsx
+│   │   │   ├── CodingEditor.jsx
+│   │   │   ├── PerformanceReport.jsx
+│   │   │   └── VoiceRecorder.jsx
 │   │   ├── pages/
 │   │   ├── services/
-│   │   │   ├── apiClient.ts
-│   │   │   └── speechService.ts
-│   │   └── App.tsx
-│   ├── vite.config.ts
+│   │   │   ├── apiClient.js
+│   │   │   └── speechService.js
+│   │   └── App.jsx
+│   ├── vite.config.js
 │   └── package.json
 │
 ├── backend/
@@ -192,7 +195,7 @@ majorproject/
 
 ### Frontend
 - React 18+
-- TypeScript
+- JavaScript
 - Vite
 - TailwindCSS / Material-UI
 - Socket.io (WebSocket)

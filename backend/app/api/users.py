@@ -127,7 +127,7 @@ async def parse_resume_text(
         logger.error(f"Resume text parse error: {e}")
         raise HTTPException(status_code=400, detail="Failed to parse resume")
 
-@router.post("/progress")
+@router.get("/progress")
 async def get_progress(
     user_id: str = Depends(get_current_user),
     db=Depends(get_db)

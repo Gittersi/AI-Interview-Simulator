@@ -5,7 +5,7 @@ import { authService } from '../services/apiClient';
 import axios from 'axios';
 import { LogIn } from 'lucide-react';
 
-export const LoginPage: React.FC = () => {
+export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
@@ -15,7 +15,7 @@ export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const { setToken, setUser } = useAuthStore();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -32,8 +32,8 @@ export const LoginPage: React.FC = () => {
         setUser(response.data.user);
         navigate('/dashboard');
       }
-    } catch (err: unknown) {
-      const message = axios.isAxiosError<{ detail?: string }>(err)
+    } catch (err) {
+      const message = axios.isAxiosError(err)
         ? err.response?.data?.detail
         : undefined;
       setError(message || 'Authentication failed');

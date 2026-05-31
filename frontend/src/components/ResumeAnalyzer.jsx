@@ -2,49 +2,29 @@ import React, { useState } from 'react';
 import { userService } from '../services/apiClient';
 import { BarChart3, AlertCircle, CheckCircle, TrendingUp } from 'lucide-react';
 
-interface ATSAnalysis {
-  ats_score: number;
-  ats_grade: string;
-  formatting_score: number;
-  keyword_score: number;
-  content_quality_score: number;
-  summary: string;
-  strengths: string[];
-  weaknesses: string[];
-  improvements: Array<{ category: string; suggestion: string }>;
-  keywords_found: string[];
-  keywords_missing: string[];
-  formatting_issues: string[];
-  job_match_score?: number;
-}
-
-interface ResumeAnalyzerProps {
-  onAnalysisComplete?: (analysis: ATSAnalysis) => void;
-}
-
-export const ResumeAnalyzer: React.FC<ResumeAnalyzerProps> = ({ onAnalysisComplete }) => {
+export const ResumeAnalyzer = ({ onAnalysisComplete }) => {
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysis, setAnalysis] = useState<ATSAnalysis | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState(null);
+  const [error, setError] = useState(null);
   const [showJobDescription, setShowJobDescription] = useState(false);
 
-  const getScoreColor = (score: number): string => {
+  const getScoreColor = (score) => {
     if (score >= 85) return 'text-green-600';
     if (score >= 70) return 'text-blue-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
 
-  const getScoreBgColor = (score: number): string => {
+  const getScoreBgColor = (score) => {
     if (score >= 85) return 'bg-green-50';
     if (score >= 70) return 'bg-blue-50';
     if (score >= 60) return 'bg-yellow-50';
     return 'bg-red-50';
   };
 
-  const getGradeColor = (grade: string): string => {
+  const getGradeColor = (grade) => {
     switch (grade) {
       case 'A':
         return 'bg-green-600 text-white';
@@ -77,7 +57,7 @@ export const ResumeAnalyzer: React.FC<ResumeAnalyzerProps> = ({ onAnalysisComple
         showJobDescription ? jobDescription : undefined
       );
 
-      const atsAnalysis = response.data.analysis as ATSAnalysis;
+      const atsAnalysis = response.data.analysis;
       setAnalysis(atsAnalysis);
       onAnalysisComplete?.(atsAnalysis);
     } catch (err) {

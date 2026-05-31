@@ -1,28 +1,6 @@
 import { create } from 'zustand';
-import { User, Interview, Question } from '../types';
 
-interface AuthStore {
-  user: User | null;
-  token: string | null;
-  setUser: (user: User | null) => void;
-  setToken: (token: string | null) => void;
-  logout: () => void;
-}
-
-interface InterviewStore {
-  currentInterview: Interview | null;
-  currentQuestion: Question | null;
-  setCurrentInterview: (interview: Interview | null) => void;
-  setCurrentQuestion: (question: Question | null) => void;
-}
-
-interface ThemeStore {
-  isDarkMode: boolean;
-  toggleDarkMode: () => void;
-  setDarkMode: (isDark: boolean) => void;
-}
-
-export const useAuthStore = create<AuthStore>((set) => ({
+export const useAuthStore = create((set) => ({
   user: null,
   token: localStorage.getItem('authToken'),
   setUser: (user) => set({ user }),
@@ -40,14 +18,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   },
 }));
 
-export const useInterviewStore = create<InterviewStore>((set) => ({
+export const useInterviewStore = create((set) => ({
   currentInterview: null,
   currentQuestion: null,
   setCurrentInterview: (interview) => set({ currentInterview: interview }),
   setCurrentQuestion: (question) => set({ currentQuestion: question }),
 }));
 
-export const useThemeStore = create<ThemeStore>((set) => {
+export const useThemeStore = create((set) => {
   const saved = localStorage.getItem('theme') || 'light';
   const isDark = saved === 'dark';
   if (isDark) {
@@ -70,7 +48,7 @@ export const useThemeStore = create<ThemeStore>((set) => {
         return { isDarkMode: newIsDark };
       });
     },
-    setDarkMode: (isDark: boolean) => {
+    setDarkMode: (isDark) => {
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
       if (isDark) {
         document.documentElement.classList.add('dark');

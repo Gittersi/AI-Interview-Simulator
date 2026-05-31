@@ -1,16 +1,6 @@
 import React, { useState } from 'react';
 
-interface CodingEditorProps {
-  language: string;
-  onExecute: (code: string) => Promise<void>;
-  initialCode?: string;
-}
-
-export const CodingEditor: React.FC<CodingEditorProps> = ({
-  language,
-  onExecute,
-  initialCode = '',
-}) => {
+export const CodingEditor = ({ language, onExecute, initialCode = '' }) => {
   const [code, setCode] = useState(initialCode);
   const [isExecuting, setIsExecuting] = useState(false);
   const [output, setOutput] = useState('');

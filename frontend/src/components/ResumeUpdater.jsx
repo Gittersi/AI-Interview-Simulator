@@ -2,24 +2,13 @@ import React, { useState } from 'react';
 import { userService } from '../services/apiClient';
 import { CheckCircle, Clipboard, Edit3, RefreshCcw } from 'lucide-react';
 
-interface UpdateResponse {
-  updatedResume: string;
-  analysis: {
-    summary: string;
-    suggestions: string[];
-    keywords_added?: string[];
-    keywords_missing?: string[];
-    job_match_score?: number;
-  };
-}
-
-export const ResumeUpdater: React.FC = () => {
+export const ResumeUpdater = () => {
   const [resumeText, setResumeText] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [updatedResume, setUpdatedResume] = useState('');
-  const [analysis, setAnalysis] = useState<UpdateResponse['analysis'] | null>(null);
+  const [analysis, setAnalysis] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState(null);
   const [savedMessage, setSavedMessage] = useState('');
 
   const handleUpdateResume = async () => {
@@ -36,7 +25,7 @@ export const ResumeUpdater: React.FC = () => {
     setIsUpdating(true);
     try {
       const response = await userService.updateResume(resumeText, jobDescription);
-      const data = response.data as UpdateResponse;
+      const data = response.data;
       setUpdatedResume(data.updatedResume);
       setAnalysis(data.analysis);
       setSavedMessage('Updated resume generated successfully.');

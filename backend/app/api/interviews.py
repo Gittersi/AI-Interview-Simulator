@@ -3,6 +3,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from app.schemas import InterviewCreate, InterviewResponse, AnswerCreate, ResumeInterviewCreate
 from app.services.auth_service import AuthService
 from app.services.llm_service import LLMService
+from app.services.llm_worker import enqueue_task
+from app.config import settings
 from app.services.evaluation_service import EvaluationService
 from app.services.resume_parser_service import ResumeParserService
 from app.db.database import get_db
@@ -47,17 +49,22 @@ async def start_interview(
 ):
     """Start a new interview."""
     interview_id = str(uuid.uuid4())
-    
-    # Generate questions
-    questions = LLMService.generate_questions(
-        category=interview_data.category,
-        difficulty=interview_data.difficulty,
+    # Immediately return fast deterministic/default questions to keep latency low.
+    fast_questions = LLMService._get_default_questions(
+        interview_data.category,
+        interview_data.difficulty,
         count=5
     )
     questions = LLMService.normalize_questions(
-        questions,
+        fast_questions,
         interview_data.category,
         interview_data.difficulty
+    )
+    # If real LLMs are configured and mock mode is not enabled, enqueue background task
+    llm_enabled = (
+        not settings.DEBUG
+        and not settings.LLM_USE_MOCK
+        and (settings.OPENAI_API_KEY or settings.ANTHROPIC_API_KEY)
     )
     
     interview = {
@@ -69,10 +76,20 @@ async def start_interview(
         "category": interview_data.category,
         "difficulty": interview_data.difficulty,
         "questions": questions,
+        "llm_status": "pending" if llm_enabled else "done",
         "answers": []
     }
     
     await db.interviews.insert_one(interview)
+
+    if llm_enabled:
+        enqueue_task({
+            "type": "generate_questions",
+            "interview_id": interview_id,
+            "category": interview_data.category,
+            "difficulty": interview_data.difficulty,
+            "count": 5,
+        })
     
     return build_interview_response(interview)
 
@@ -85,10 +102,13 @@ async def start_resume_interview(
     """Start a new interview from pasted resume text."""
     parsed = ResumeParserService.parse_resume(resume_data.resumeText)
     skills = parsed.get("skills", [])
-    questions = LLMService.generate_resume_questions(
-        skills=skills,
-        difficulty=resume_data.difficulty,
-        count=5
+    # Provide immediate resume-based default questions and enqueue LLM generation if enabled
+    fast_questions = LLMService._get_resume_default_questions(skills, resume_data.difficulty, count=5)
+    questions = LLMService.normalize_questions(fast_questions, "resume", resume_data.difficulty)
+    llm_enabled = (
+        not settings.DEBUG
+        and not settings.LLM_USE_MOCK
+        and (settings.OPENAI_API_KEY or settings.ANTHROPIC_API_KEY)
     )
 
     interview_id = str(uuid.uuid4())
@@ -102,6 +122,7 @@ async def start_resume_interview(
         "difficulty": resume_data.difficulty,
         "resumeData": parsed,
         "questions": questions,
+        "llm_status": "pending" if llm_enabled else "done",
         "answers": []
     }
 
@@ -116,6 +137,16 @@ async def start_resume_interview(
         }
     )
     await db.interviews.insert_one(interview)
+
+    if llm_enabled:
+        enqueue_task({
+            "type": "generate_questions",
+            "interview_id": interview_id,
+            "category": "resume",
+            "difficulty": resume_data.difficulty,
+            "count": 5,
+            "skills": skills,
+        })
 
     return build_interview_response(interview)
 

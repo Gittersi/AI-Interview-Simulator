@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     ANTHROPIC_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-3.5-turbo"
+    # Development toggle: when true, avoid calling external LLMs and use deterministic defaults
+    LLM_USE_MOCK: bool = False
     
     # Speech-to-Text
     ASSEMBLYAI_API_KEY: Optional[str] = None

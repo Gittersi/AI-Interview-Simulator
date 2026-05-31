@@ -3,16 +3,15 @@ import { useParams } from 'react-router-dom';
 import { interviewService, evaluationService } from '../services/apiClient';
 import { InterviewPanel } from '../components/InterviewPanel';
 import { CodingEditor } from '../components/CodingEditor';
-import { Interview, Question } from '../types';
 import { Clock } from 'lucide-react';
 
-export const InterviewPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const [interview, setInterview] = useState<Interview | null>(null);
-  const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+export const InterviewPage = () => {
+  const { id } = useParams();
+  const [interview, setInterview] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
     const fetchInterview = async () => {
@@ -47,7 +46,7 @@ export const InterviewPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [timeLeft]);
 
-  const handleSubmitAnswer = async (answer: string) => {
+  const handleSubmitAnswer = async (answer) => {
     try {
       if (!id) return;
 

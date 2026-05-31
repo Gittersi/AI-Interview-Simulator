@@ -1,12 +1,7 @@
 import apiClient from './apiClient';
 
-interface RecordingError {
-  code: string;
-  message: string;
-}
-
 export const speechService = {
-  startRecording: async (): Promise<MediaRecorder> => {
+  startRecording: async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
@@ -32,28 +27,28 @@ export const speechService = {
         throw {
           code: error.name,
           message: error.message,
-        } as RecordingError;
+        };
       }
       throw error;
     }
   },
 
-  stopRecording: (recorder: MediaRecorder): Promise<Blob> => {
+  stopRecording: (recorder) => {
     return new Promise((resolve, reject) => {
       if (!recorder) {
         reject(new Error('No recorder available'));
         return;
       }
       
-      const chunks: BlobPart[] = [];
+      const chunks = [];
       
-      recorder.ondataavailable = (event: BlobEvent) => {
+      recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           chunks.push(event.data);
         }
       };
       
-      recorder.onerror = (event: Event) => {
+      recorder.onerror = (event) => {
         if (event instanceof ErrorEvent) {
           reject(new Error(`Recording error: ${event.error}`));
         } else {
@@ -77,7 +72,7 @@ export const speechService = {
     });
   },
 
-  transcribeAudio: async (blob: Blob): Promise<string> => {
+  transcribeAudio: async (blob) => {
     try {
       if (!blob || blob.size === 0) {
         throw new Error('Audio blob is empty');
@@ -92,7 +87,7 @@ export const speechService = {
       
       console.info(`Uploading audio: ${blob.size} bytes, type: ${blob.type}`);
       
-      const response = await apiClient.post<{ text: string; status: string }>(
+      const response = await apiClient.post(
         '/speech/transcribe',
         formData
       );
@@ -112,7 +107,7 @@ export const speechService = {
     }
   },
 
-  textToSpeech: async (text: string): Promise<void> => {
+  textToSpeech: async (text) => {
     try {
       if (!text || !text.trim()) {
         throw new Error('No text provided for speech synthesis');
@@ -140,7 +135,7 @@ export const speechService = {
           resolve();
         };
         
-        utterance.onerror = (event: SpeechSynthesisErrorEvent) => {
+        utterance.onerror = (event) => {
           console.error(`Speech synthesis error: ${event.error}`);
           reject(new Error(`Speech synthesis error: ${event.error}`));
         };
@@ -156,16 +151,16 @@ export const speechService = {
     }
   },
 
-  stopSpeech: (): void => {
+  stopSpeech: () => {
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
   },
 
-  checkRecordingPermission: async (): Promise<boolean> => {
+  checkRecordingPermission: async () => {
     try {
       const permission = await navigator.permissions.query({
-        name: 'microphone' as PermissionName,
+        name: 'microphone',
       });
       return permission.state === 'granted';
     } catch {
@@ -174,7 +169,7 @@ export const speechService = {
     }
   },
 
-  checkSpeechSynthesisSupport: (): boolean => {
+  checkSpeechSynthesisSupport: () => {
     return 'speechSynthesis' in window;
   },
 };

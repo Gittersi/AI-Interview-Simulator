@@ -1,7 +1,7 @@
 import React from 'react';
 import { ResumeAnalyzer } from '../components/ResumeAnalyzer';
 
-export const ResumeAnalysisPage: React.FC = () => {
+export const ResumeAnalysisPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
       <div className="max-w-4xl mx-auto">

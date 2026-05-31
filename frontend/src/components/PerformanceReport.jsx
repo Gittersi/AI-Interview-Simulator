@@ -1,14 +1,7 @@
 import React from 'react';
-import { PerformanceReport as IPerformanceReport } from '../types';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-interface PerformanceReportProps {
-  report: IPerformanceReport;
-}
-
-export const PerformanceReport: React.FC<PerformanceReportProps> = ({
-  report,
-}) => {
+export const PerformanceReport = ({ report }) => {
   const scoreData = [
     { name: 'Correctness', value: report.correctnessScore },
     { name: 'Communication', value: report.communicationScore },

@@ -11,6 +11,11 @@ class LLMService:
     @staticmethod
     def generate_questions(category: str, difficulty: str, count: int = 5) -> List[dict]:
         """Generate interview questions using LLM."""
+        # In development mode prefer fast deterministic defaults to avoid
+        # hitting external LLM APIs (which can be slow or rate-limited).
+        if settings.DEBUG:
+            return LLMService._get_default_questions(category, difficulty, count)
+
         try:
             if settings.OPENAI_API_KEY:
                 return LLMService._generate_with_openai(category, difficulty, count)
@@ -28,6 +33,10 @@ class LLMService:
         normalized_skills = [skill.strip().lower() for skill in skills if skill.strip()]
         if not normalized_skills:
             return LLMService._get_default_questions("algorithms", difficulty, count)
+
+        # Use default resume-based questions in development to avoid slow LLM calls
+        if settings.DEBUG:
+            return LLMService._get_resume_default_questions(normalized_skills, difficulty, count)
 
         try:
             if settings.OPENAI_API_KEY:
@@ -232,28 +241,31 @@ class LLMService:
     @staticmethod
     def generate_feedback(answer: str, question: str) -> str:
         """Generate detailed feedback using LLM."""
+        # In development, avoid external LLM calls (slow and may hit quotas)
+        if settings.DEBUG or not settings.OPENAI_API_KEY:
+            return "Good effort! Review the key concepts and try similar problems to improve."
+
         try:
-            if settings.OPENAI_API_KEY:
-                from openai import OpenAI
-                client = OpenAI(api_key=settings.OPENAI_API_KEY)
-                
-                response = client.chat.completions.create(
-                    model=settings.OPENAI_MODEL,
-                    messages=[
-                        {
-                            "role": "system",
-                            "content": "You are an expert technical interviewer providing constructive feedback."
-                        },
-                        {
-                            "role": "user",
-                            "content": f"Question: {question}\n\nAnswer: {answer}\n\nProvide specific, actionable feedback."
-                        }
-                    ],
-                    max_tokens=500
-                )
-                
-                return response.choices[0].message.content
+            from openai import OpenAI
+            client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
+            response = client.chat.completions.create(
+                model=settings.OPENAI_MODEL,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert technical interviewer providing constructive feedback."
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Question: {question}\n\nAnswer: {answer}\n\nProvide specific, actionable feedback."
+                    }
+                ],
+                max_tokens=500
+            )
+
+            return response.choices[0].message.content
         except Exception as e:
             logger.error(f"Error generating feedback: {e}")
-        
+
         return "Good effort! Review the key concepts and try similar problems to improve."

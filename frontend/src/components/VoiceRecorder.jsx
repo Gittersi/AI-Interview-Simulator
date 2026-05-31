@@ -2,22 +2,14 @@ import React, { useState, useRef } from 'react';
 import { Mic, MicOff, AlertCircle } from 'lucide-react';
 import { speechService } from '../services/speechService';
 
-interface VoiceRecorderProps {
-  onTranscription: (text: string) => void;
-  disabled?: boolean;
-}
-
-export const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
-  onTranscription,
-  disabled = false,
-}) => {
+export const VoiceRecorder = ({ onTranscription, disabled = false }) => {
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [errorType, setErrorType] = useState<'permission' | 'transcription' | 'recording' | null>(null);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const recordingTimeRef = useRef<number>(0);
-  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [error, setError] = useState(null);
+  const [errorType, setErrorType] = useState(null);
+  const recorderRef = useRef(null);
+  const recordingTimeRef = useRef(0);
+  const recordingTimerRef = useRef(null);
 
   const clearError = () => {
     setError(null);

@@ -6,33 +6,13 @@ import { BarChart3, FileText, LogOut, Upload } from 'lucide-react';
 import { ResumeUpdater } from '../components/ResumeUpdater';
 import { ThemeToggle } from '../components/ThemeToggle';
 
-interface ParsedResume {
-  skills: string[];
-  experience: string[];
-  education: string[];
-}
-
-interface InterviewSummary {
-  id: string;
-  startTime: string;
-  category: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  status: 'in-progress' | 'completed' | 'abandoned';
-}
-
-interface UserProgress {
-  totalInterviews: number;
-  completedInterviews: number;
-  averageScore: number;
-}
-
-export const Dashboard: React.FC = () => {
-  const [interviews, setInterviews] = useState<InterviewSummary[]>([]);
-  const [progress, setProgress] = useState<UserProgress | null>(null);
+export const Dashboard = () => {
+  const [interviews, setInterviews] = useState([]);
+  const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
   const [resumeText, setResumeText] = useState('');
   const [resumeDifficulty, setResumeDifficulty] = useState('medium');
-  const [parsedResume, setParsedResume] = useState<ParsedResume | null>(null);
+  const [parsedResume, setParsedResume] = useState(null);
   const [resumeStatus, setResumeStatus] = useState('');
   const [resumeError, setResumeError] = useState('');
   const [isParsingResume, setIsParsingResume] = useState(false);
@@ -59,7 +39,7 @@ export const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  const handleStartInterview = async (difficulty: string) => {
+  const handleStartInterview = async (difficulty) => {
     try {
       const response = await interviewService.startInterview(difficulty, 'algorithms');
       navigate(`/interview/${response.data.id}`);
@@ -69,7 +49,7 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const handleResumeFile = async (file: File) => {
+  const handleResumeFile = async (file) => {
     const text = await file.text();
     setResumeText(text);
     setParsedResume(null);

@@ -4,6 +4,7 @@ from app.config import settings
 from app.db.database import connect_to_mongo, disconnect_from_mongo
 from app.api import auth, interviews, evaluation, users, speech
 import logging
+from app.services.llm_worker import start_llm_worker, stop_llm_worker
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -27,10 +28,14 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     await connect_to_mongo()
+    # Start background LLM worker (will be a no-op if event loop unavailable)
+    start_llm_worker()
     logger.info("Application startup complete")
 
 @app.on_event("shutdown")
 async def shutdown():
+    # Stop background worker before disconnecting from DB
+    stop_llm_worker()
     await disconnect_from_mongo()
     logger.info("Application shutdown complete")
 
