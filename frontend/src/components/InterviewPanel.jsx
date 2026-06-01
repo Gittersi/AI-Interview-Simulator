@@ -64,18 +64,20 @@ export const InterviewPanel = ({
   const hasTTSSupport = speechService.checkSpeechSynthesisSupport();
 
   return (
-    <div className="flex flex-col gap-6 p-6 bg-white rounded-lg shadow-lg">
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">Question</h3>
-        <p className="text-gray-700 text-base leading-relaxed">{question.text}</p>
-        <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-medium">
+    <div className="flex flex-col gap-6 p-6 bg-white rounded-3xl shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-800 transition-all duration-300 hover:-translate-y-0.5">
+      <div className="bg-gradient-to-r from-sky-50 to-blue-50 dark:from-slate-800 dark:to-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-700">
+        <div className="flex flex-col gap-3">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Question</h3>
+          <p className="text-gray-700 dark:text-slate-200 text-base leading-relaxed">{question.text}</p>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 text-sm rounded-full font-medium transition-all duration-300 hover:scale-105">
             {question.category}
           </span>
-          <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium">
+          <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm rounded-full font-medium transition-all duration-300 hover:scale-105">
             Difficulty: {question.difficulty}
           </span>
-          <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full font-medium">
+          <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm rounded-full font-medium transition-all duration-300 hover:scale-105">
             Time: {question.timeLimit}s
           </span>
         </div>
@@ -83,36 +85,35 @@ export const InterviewPanel = ({
 
       <div className="space-y-3">
         <label className="block">
-          <span className="text-sm font-medium text-gray-700 mb-2 block">
-            Your Answer
-          </span>
+          <span className="text-sm font-medium text-gray-700 mb-2 block">Your Answer</span>
           <textarea
             value={answer}
             onChange={(e) => setAnswer(e.target.value)}
             placeholder="Type your answer here or use the voice recorder below..."
-            className="w-full h-40 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+            className="w-full h-40 p-3 border border-gray-300 rounded-3xl focus:ring-4 focus:ring-blue-200 focus:border-transparent resize-none transition-all duration-300 bg-white dark:bg-slate-900 dark:text-slate-100"
             disabled={isSubmitting}
           />
         </label>
-        <p className="text-xs text-gray-500">
-          {answer.length} characters
-        </p>
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+          <p>{answer.length} characters</p>
+          <p className="italic">Pro tip: keep answers concise and structured.</p>
+        </div>
       </div>
 
       <VoiceRecorder
-        onTranscription={(text) => setAnswer((prev) => (prev ? prev + ' ' + text : text))}
+        onTranscription={(text) => setAnswer((prev) => (prev ? `${prev} ${text}` : text))}
         disabled={isSubmitting}
       />
 
       {feedback && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="p-4 bg-green-50 border border-green-200 rounded-3xl transition-all duration-300">
           <div className="flex items-start justify-between mb-2">
             <h4 className="text-sm font-semibold text-green-800">Feedback</h4>
             {hasTTSSupport && (
               <button
                 onClick={isSpeaking ? handleStopSpeech : handlePlayFeedback}
                 disabled={!feedback}
-                className={`p-1 rounded transition-all ${
+                className={`p-2 rounded-full transition-all ${
                   isSpeaking
                     ? 'bg-red-100 text-red-600 hover:bg-red-200'
                     : 'bg-green-100 text-green-600 hover:bg-green-200'
@@ -159,7 +160,7 @@ export const InterviewPanel = ({
       <button
         onClick={handleSubmit}
         disabled={isSubmitting || !answer.trim()}
-        className="w-full py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold rounded-lg transition-all"
+        className="w-full py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-semibold rounded-3xl transition-all duration-300 shadow-lg hover:-translate-y-0.5"
       >
         {isSubmitting ? 'Submitting...' : 'Submit Answer'}
       </button>

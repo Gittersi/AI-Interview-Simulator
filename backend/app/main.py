@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.db.database import connect_to_mongo, disconnect_from_mongo
-from app.api import auth, interviews, evaluation, users, speech
+from app.api import auth, interviews, evaluation, users, speech, questions
 import logging
 from app.services.llm_worker import start_llm_worker, stop_llm_worker
 
@@ -45,6 +45,7 @@ app.include_router(interviews.router)
 app.include_router(evaluation.router)
 app.include_router(users.router)
 app.include_router(speech.router)
+app.include_router(questions.router)
 
 @app.get("/health")
 async def health_check():

@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { interviewService, evaluationService } from '../services/apiClient';
 import { InterviewPanel } from '../components/InterviewPanel';
 import { CodingEditor } from '../components/CodingEditor';
-import { Clock } from 'lucide-react';
+import { Clock, Sparkles } from 'lucide-react';
 
 export const InterviewPage = () => {
   const { id } = useParams();
@@ -12,6 +12,7 @@ export const InterviewPage = () => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(0);
+  const [isTimeLow, setIsTimeLow] = useState(false);
 
   useEffect(() => {
     const fetchInterview = async () => {
@@ -37,8 +38,12 @@ export const InterviewPage = () => {
 
   // Timer effect
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      setIsTimeLow(false);
+      return;
+    }
 
+    setIsTimeLow(timeLeft <= 20);
     const timer = setTimeout(() => {
       setTimeLeft(timeLeft - 1);
     }, 1000);
@@ -102,28 +107,53 @@ export const InterviewPage = () => {
     );
   }
 
+  const totalQuestions = interview?.questions?.length || 0;
+  const progressPercent = totalQuestions ? ((questionIndex + 1) / totalQuestions) * 100 : 0;
+  const timeBarColor = isTimeLow ? 'bg-rose-500' : 'bg-emerald-500';
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-slate-100 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       {/* Header */}
-      <header className="bg-white shadow sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">Interview Session</h1>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-red-500" />
-              <span className="text-lg font-semibold text-gray-700">
-                {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
-              </span>
+      <header className="bg-gradient-to-r from-indigo-600 to-sky-600 text-white shadow-lg sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 py-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0">
+          <div>
+            <h1 className="text-3xl font-bold">Interview Session</h1>
+            <p className="text-sm text-sky-100 mt-1 flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> Stay focused and answer clearly — the AI is listening.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <div className="rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm border border-white/20 text-sm font-semibold text-white flex items-center gap-2">
+              <Clock className="w-4 h-4" />
+              {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </div>
-            <span className="text-gray-600">
-              Question {questionIndex + 1} of {interview?.questions?.length || 0}
+            <span className="rounded-full bg-white/15 px-4 py-2 text-sm text-white font-medium border border-white/20">
+              Question {questionIndex + 1} of {totalQuestions}
             </span>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="max-w-7xl mx-auto px-4 py-10">
+        <div className="max-w-3xl mx-auto mb-8">
+          <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl transition-all duration-300 hover:-translate-y-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Current Question Overview</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">Track progress and keep your pace while answering.</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Progress</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">{Math.round(progressPercent)}%</p>
+              </div>
+            </div>
+            <div className="mt-5 h-3 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div className={`h-full rounded-full ${timeBarColor}`} style={{ width: `${progressPercent}%` }} />
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Question Panel */}
           <div>

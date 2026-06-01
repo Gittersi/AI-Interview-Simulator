@@ -45,6 +45,8 @@ export const questionService = {
     apiClient.get(`/questions/next?interview_id=${interviewId}`),
   generateFromResume: (resumeText) =>
     apiClient.post('/questions/from-resume', { resume: resumeText }),
+  generateRandom: (category, difficulty, count = 5) =>
+    apiClient.post('/questions/random', { category, difficulty, count }),
 };
 
 export const evaluationService = {

@@ -64,6 +64,15 @@ class InterviewCreate(BaseModel):
     difficulty: DifficultyEnum
     category: str
 
+class QuestionGenerationCreate(BaseModel):
+    category: str
+    difficulty: DifficultyEnum
+    count: int = 5
+
+class ResumeQuestionGenerateCreate(BaseModel):
+    resume: str = Field(..., min_length=20)
+    difficulty: DifficultyEnum = DifficultyEnum.MEDIUM
+
 class ResumeTextCreate(BaseModel):
     resumeText: str = Field(..., min_length=20)
 

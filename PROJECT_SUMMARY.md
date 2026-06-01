@@ -7,7 +7,7 @@
 - ✅ Root configuration files (package.json, docker-compose.yml, .gitignore)
 - ✅ Comprehensive documentation (README, SETUP, ARCHITECTURE, CONTRIBUTING)
 
-### Frontend (React + TypeScript + Vite)
+### Frontend (React + JavaScript + Vite)
 - ✅ Complete React application setup with TypeScript
 - ✅ Page components:
   - LoginPage: User authentication (register/login)
